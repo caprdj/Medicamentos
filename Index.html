@@ -4,11 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Remédio — Registro diário</title>
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- (Opcional) Ícone iOS: use o 192 se não tiver outro -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
   <style>
     :root{
       --bg:#0b1220;
       --card:#101b33;
-      --card2:#0f1930;
       --text:#eaf0ff;
       --muted:#9fb2d6;
       --accent:#5dd6ff;
@@ -19,7 +28,6 @@
       --shadow: 0 10px 30px rgba(0,0,0,.35);
       --radius:18px;
       --pill:999px;
-      font-synthesis-weight: none;
       text-rendering: optimizeLegibility;
     }
     *{box-sizing:border-box}
@@ -47,9 +55,7 @@
       gap:10px;
       padding: 10px 0;
     }
-    .title{
-      display:flex; flex-direction:column; gap:2px;
-    }
+    .title{display:flex; flex-direction:column; gap:2px;}
     .title h1{margin:0; font-size: 16px; letter-spacing:.2px;}
     .title .sub{font-size: 12px; color:var(--muted)}
     .pillrow{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
@@ -156,7 +162,6 @@
     }
     .chip.muted{color: var(--muted)}
     .sep{height:1px; background: var(--border); margin: 12px 0}
-    .hidden{display:none !important}
     dialog{
       border:none;
       border-radius: 18px;
@@ -182,7 +187,7 @@
     .modal .content{padding: 14px}
     .field{display:flex; flex-direction:column; gap:6px; margin-bottom: 10px}
     label{font-size:12px; color:var(--muted)}
-    input, textarea, select{
+    input, textarea{
       background: rgba(255,255,255,.04);
       border:1px solid var(--border);
       border-radius: 12px;
@@ -200,7 +205,6 @@
       font-size: 12px;
       color: var(--text);
     }
-    a{color: var(--accent)}
   </style>
 </head>
 <body>
@@ -242,12 +246,11 @@
     </div>
 
     <div class="sep"></div>
-
     <div class="doseList" id="doseList"></div>
 
     <div class="sep"></div>
     <div class="small">
-      Dica: se você quiser registrar “manhã / tarde / noite” sem alarmes, basta marcar na hora que tomou — o app guarda o horário.
+      Dica: marque na hora que tomou — o app guarda o horário e você confere “tomei ou não”.
     </div>
   </section>
 
@@ -257,7 +260,7 @@
       <button class="btn secondary" id="btnClearHistory">Limpar histórico</button>
     </div>
     <div id="history"></div>
-    <div class="small">Os dados ficam só no seu celular (localStorage), a não ser que você faça backup.</div>
+    <div class="small">Os dados ficam só no seu aparelho. Use Backup/Restaurar se trocar de celular.</div>
   </section>
 </main>
 
@@ -266,8 +269,7 @@
     <header><h3>Configurações (opcional)</h3></header>
     <div class="content">
       <div class="warnbox">
-        Aqui é só para você ajustar o app ao seu jeito (nome do remédio e número de comprimidos por dia).
-        Não é recomendação médica.
+        Aqui é apenas para ajustar nome/quantidade no app (não é orientação médica).
       </div>
       <div class="sep"></div>
       <div class="field">
@@ -280,7 +282,7 @@
       </div>
       <div class="field">
         <label>Notas (opcional)</label>
-        <textarea id="setNotes" placeholder="Ex.: objetivo é evitar esquecer se já tomei"></textarea>
+        <textarea id="setNotes" placeholder="Ex.: mudar horário para evitar calor noturno"></textarea>
       </div>
 
       <div class="actions">
@@ -297,72 +299,64 @@
     <div class="content">
       <div class="field">
         <label>Cole aqui o JSON do backup</label>
-        <textarea id="restoreText" placeholder='{"settings":...,"days":...}'></textarea>
+        <textarea id="restoreText" placeholder='{"exportedAt":"...","data":{...}}'></textarea>
       </div>
       <div class="actions">
         <button class="btn ghost" id="btnCancelRestore">Cancelar</button>
         <button class="btn" id="btnDoRestore">Restaurar</button>
       </div>
-      <div class="small">Dica: backup/restore é útil se você trocar de celular.</div>
+      <div class="small">Backup/restore ajuda a não perder histórico ao trocar de aparelho.</div>
     </div>
   </div>
 </dialog>
 
 <script>
 /* =========================
-   Remédio — Registro diário
-   - Sem alarmes
-   - Marcações por dose
-   - Salva localmente
-   - Backup / Restaurar
+   PWA: registrar Service Worker
 ========================= */
+(function registerSW(){
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", async () => {
+    try{
+      await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+    }catch(e){
+      console.warn("SW não registrado:", e);
+    }
+  });
+})();
 
+/* =========================
+   Remédio — Registro diário
+========================= */
 const STORAGE_KEY = "remedio_registro_v1";
 
 function pad2(n){ return String(n).padStart(2,"0"); }
-function fmtDateKey(d){
-  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-}
+function fmtDateKey(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
 function fmtHumanDate(d){
   const wd = d.toLocaleDateString("pt-BR",{weekday:"short"});
   const dt = d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short",year:"numeric"});
   return `${wd.replace(".","")}, ${dt}`;
 }
-function fmtTime(d){
-  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-}
+function fmtTime(d){ return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; }
 
 function defaultState(){
-  return {
-    settings: {
-      medName: "Glifage",
-      perDay: 3,
-      notes: ""
-    },
-    // days: { "YYYY-MM-DD": { taken: [ {i, at} ... ] } }
-    days: {}
-  };
+  return { settings: { medName: "Glifage", perDay: 3, notes: "" }, days: {} };
 }
-
 function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return defaultState();
     const st = JSON.parse(raw);
-    // soft-merge defaults
     const def = defaultState();
     return {
       settings: { ...def.settings, ...(st.settings||{}) },
       days: st.days || {}
     };
   }catch(e){
-    console.warn("Falha ao carregar:", e);
     return defaultState();
   }
 }
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
 let state = loadState();
 
@@ -396,11 +390,9 @@ function ensureToday(){
   if(!state.days[key]) state.days[key] = { taken: [] };
   return key;
 }
-
 function getTakenSet(dayKey){
   const taken = state.days[dayKey]?.taken || [];
-  const set = new Set(taken.map(x=>x.i));
-  return { taken, set };
+  return { taken, set: new Set(taken.map(x=>x.i)) };
 }
 
 function render(){
@@ -411,7 +403,6 @@ function render(){
   elTodayLabel.textContent = fmtHumanDate(now);
   elTodayHint.textContent = `${medName} • ${perDay} comprimido(s)/dia`;
 
-  // doses list
   elDoseList.innerHTML = "";
   const { taken, set } = getTakenSet(dayKey);
 
@@ -450,9 +441,7 @@ function render(){
     const btn = document.createElement("button");
     btn.className = "btn " + (isTaken ? "secondary" : "");
     btn.textContent = isTaken ? "Desmarcar" : "Marcar como tomado";
-    btn.addEventListener("click", ()=>{
-      toggleDose(dayKey, i);
-    });
+    btn.addEventListener("click", ()=> toggleDose(dayKey, i));
 
     right.appendChild(tag);
     right.appendChild(btn);
@@ -466,17 +455,12 @@ function render(){
 }
 
 function toggleDose(dayKey, doseIndex){
-  const now = new Date();
-  const at = fmtTime(now);
+  const at = fmtTime(new Date());
   const day = state.days[dayKey] || { taken: [] };
   const idx = day.taken.findIndex(x=>x.i===doseIndex);
 
-  if(idx>=0){
-    // desmarca
-    day.taken.splice(idx,1);
-  }else{
-    day.taken.push({ i:doseIndex, at });
-  }
+  if(idx>=0) day.taken.splice(idx,1);
+  else day.taken.push({ i:doseIndex, at });
 
   state.days[dayKey] = day;
   saveState();
@@ -485,17 +469,16 @@ function toggleDose(dayKey, doseIndex){
 
 function renderHistory(){
   const keys = Object.keys(state.days).sort().reverse();
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 30);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
   const cutoffKey = fmtDateKey(cutoff);
 
   const recent = keys.filter(k => k >= cutoffKey);
+  const { perDay } = state.settings;
+
   if(!recent.length){
     elHistory.innerHTML = `<div class="small">Sem histórico ainda. Suas marcações aparecerão aqui.</div>`;
     return;
   }
-
-  const { perDay } = state.settings;
 
   elHistory.innerHTML = "";
   recent.forEach(k=>{
@@ -523,7 +506,6 @@ function renderHistory(){
       ch.textContent = "sem marcações";
       times.appendChild(ch);
     }else{
-      // ordenar por dose
       const ordered = day.taken.slice().sort((a,b)=>a.i-b.i);
       ordered.forEach(x=>{
         const ch = document.createElement("div");
@@ -539,9 +521,7 @@ function renderHistory(){
   });
 }
 
-/* =========================
-   Backup / Restore
-========================= */
+/* Backup / Restore */
 function downloadText(filename, text){
   const blob = new Blob([text], {type:"application/json;charset=utf-8"});
   const url = URL.createObjectURL(blob);
@@ -561,22 +541,19 @@ btnBackup.addEventListener("click", ()=>{
     version: 1,
     data: state
   };
-  const filename = `backup_remedio_${fmtDateKey(new Date())}.json`;
-  downloadText(filename, JSON.stringify(payload, null, 2));
+  downloadText(`backup_remedio_${fmtDateKey(new Date())}.json`, JSON.stringify(payload, null, 2));
 });
 
 btnRestore.addEventListener("click", ()=>{
   restoreText.value = "";
   dlgRestore.showModal();
 });
-
 btnCancelRestore.addEventListener("click", ()=> dlgRestore.close());
-
 btnDoRestore.addEventListener("click", ()=>{
   try{
     const obj = JSON.parse(restoreText.value.trim());
-    const data = obj.data || obj; // permite colar direto state
-    if(!data.settings || !data.days) throw new Error("Backup inválido: faltam campos.");
+    const data = obj.data || obj;
+    if(!data.settings || !data.days) throw new Error("Backup inválido (faltam campos).");
     state = {
       settings: { ...defaultState().settings, ...(data.settings||{}) },
       days: data.days || {}
@@ -590,9 +567,7 @@ btnDoRestore.addEventListener("click", ()=>{
   }
 });
 
-/* =========================
-   Settings
-========================= */
+/* Settings */
 btnSettings.addEventListener("click", ()=>{
   setName.value = state.settings.medName || "";
   setPerDay.value = state.settings.perDay || 1;
@@ -610,7 +585,6 @@ btnSaveSettings.addEventListener("click", ()=>{
   state.settings.perDay = perDay;
   state.settings.notes = (setNotes.value || "").trim();
 
-  // Se diminuiu perDay, remover tomadas acima do limite em todos os dias
   Object.keys(state.days).forEach(k=>{
     const day = state.days[k];
     if(!day?.taken) return;
@@ -622,27 +596,20 @@ btnSaveSettings.addEventListener("click", ()=>{
   render();
 });
 
-/* =========================
-   Reset Today / Clear history
-========================= */
+/* Reset / Clear history */
 btnResetToday.addEventListener("click", ()=>{
-  const ok = confirm("Zerar as marcações de HOJE?");
-  if(!ok) return;
-  const k = fmtDateKey(new Date());
-  state.days[k] = { taken: [] };
+  if(!confirm("Zerar as marcações de HOJE?")) return;
+  state.days[fmtDateKey(new Date())] = { taken: [] };
   saveState();
   render();
 });
-
 btnClearHistory.addEventListener("click", ()=>{
-  const ok = confirm("Isso apaga TODO o histórico (exceto as configurações). Continuar?");
-  if(!ok) return;
+  if(!confirm("Apagar TODO o histórico? (configurações ficam)")) return;
   state.days = {};
   saveState();
   render();
 });
 
-// init
 render();
 </script>
 </body>
