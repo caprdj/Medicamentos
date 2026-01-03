@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Remédio — Registro diário</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#101b33;
+      --card2:#0f1930;
+      --text:#eaf0ff;
+      --muted:#9fb2d6;
+      --accent:#5dd6ff;
+      --ok:#33d17a;
+      --warn:#ffcc66;
+      --danger:#ff6b6b;
+      --border:rgba(255,255,255,.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      --pill:999px;
+      font-synthesis-weight: none;
+      text-rendering: optimizeLegibility;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1000px 600px at 20% -10%, rgba(93,214,255,.18), transparent 55%),
+                  radial-gradient(900px 700px at 100% 10%, rgba(51,209,122,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    header{
+      position: sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.72);
+      border-bottom: 1px solid var(--border);
+    }
+    .wrap{max-width: 760px; margin:0 auto; padding: 14px 14px 26px;}
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 0;
+    }
+    .title{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .title h1{margin:0; font-size: 16px; letter-spacing:.2px;}
+    .title .sub{font-size: 12px; color:var(--muted)}
+    .pillrow{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .pill{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: var(--pill);
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill:hover{border-color: rgba(93,214,255,.35)}
+    .pill.primary{background: rgba(93,214,255,.14); border-color: rgba(93,214,255,.35)}
+    .pill.danger{background: rgba(255,107,107,.12); border-color: rgba(255,107,107,.35)}
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin: 14px 0;
+    }
+    .row{display:flex; gap:12px; flex-wrap:wrap}
+    .kpi{
+      flex:1 1 160px;
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .kpi .label{font-size: 12px; color:var(--muted)}
+    .kpi .value{font-size: 18px; margin-top: 4px; font-weight: 700}
+    .kpi .hint{font-size: 12px; color:var(--muted); margin-top: 2px}
+    .doseList{display:flex; flex-direction:column; gap:10px; margin-top: 10px}
+    .dose{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      gap:10px;
+    }
+    .dose .left{display:flex; flex-direction:column; gap:2px}
+    .dose .name{font-weight: 650}
+    .dose .meta{font-size: 12px; color:var(--muted)}
+    .dose .right{display:flex; align-items:center; gap:10px}
+    .tag{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: var(--pill);
+      border:1px solid var(--border);
+      color: var(--muted);
+      background: rgba(255,255,255,.02);
+      white-space:nowrap;
+    }
+    .tag.ok{color: rgba(51,209,122,.95); border-color: rgba(51,209,122,.35); background: rgba(51,209,122,.10)}
+    .btn{
+      border:none;
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight:650;
+      color: var(--text);
+      background: rgba(93,214,255,.14);
+      border:1px solid rgba(93,214,255,.35);
+    }
+    .btn:active{transform: translateY(1px)}
+    .btn.secondary{
+      background: rgba(255,255,255,.04);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .btn.ghost{
+      background: transparent;
+      border:1px solid var(--border);
+      color: var(--text);
+    }
+    .small{font-size:12px; color:var(--muted)}
+    .histHead{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom: 10px;
+    }
+    .histHead h2{margin:0; font-size: 14px}
+    .day{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.02);
+      margin-bottom: 10px;
+    }
+    .day .dtitle{display:flex; justify-content:space-between; gap:10px; align-items:center}
+    .day .dtitle .date{font-weight:700}
+    .day .dtitle .sum{font-size:12px; color:var(--muted)}
+    .times{margin-top: 8px; display:flex; gap:8px; flex-wrap:wrap}
+    .chip{
+      font-size:12px;
+      padding: 6px 10px;
+      border-radius: var(--pill);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+    }
+    .chip.muted{color: var(--muted)}
+    .sep{height:1px; background: var(--border); margin: 12px 0}
+    .hidden{display:none !important}
+    dialog{
+      border:none;
+      border-radius: 18px;
+      padding: 0;
+      width: min(640px, calc(100vw - 24px));
+      box-shadow: var(--shadow);
+      background: #0b1220;
+      color: var(--text);
+    }
+    dialog::backdrop{background: rgba(0,0,0,.55)}
+    .modal{
+      border:1px solid var(--border);
+      border-radius: 18px;
+      overflow:hidden;
+    }
+    .modal header{
+      position: relative;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+    }
+    .modal header h3{margin:0; font-size: 14px}
+    .modal .content{padding: 14px}
+    .field{display:flex; flex-direction:column; gap:6px; margin-bottom: 10px}
+    label{font-size:12px; color:var(--muted)}
+    input, textarea, select{
+      background: rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 10px;
+      color: var(--text);
+      outline: none;
+    }
+    textarea{min-height: 72px; resize: vertical}
+    .actions{display:flex; gap:10px; justify-content:flex-end; padding-top: 6px}
+    .warnbox{
+      border:1px solid rgba(255,204,102,.35);
+      background: rgba(255,204,102,.10);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--text);
+    }
+    a{color: var(--accent)}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>Remédio — Registro diário</h1>
+        <div class="sub" id="subline">Sem alarmes. Só marcar e pronto.</div>
+      </div>
+      <div class="pillrow">
+        <button class="pill primary" id="btnBackup">📤 Backup</button>
+        <button class="pill primary" id="btnRestore">📥 Restaurar</button>
+        <button class="pill" id="btnSettings">⚙️ Config</button>
+        <button class="pill danger" id="btnResetToday">↩️ Zerar hoje</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" id="cardToday">
+    <div class="row">
+      <div class="kpi">
+        <div class="label">Hoje</div>
+        <div class="value" id="todayLabel">—</div>
+        <div class="hint" id="todayHint">—</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Tomados</div>
+        <div class="value" id="kpiTaken">0/0</div>
+        <div class="hint">Marque conforme tomar</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Última marcação</div>
+        <div class="value" id="kpiLast">—</div>
+        <div class="hint">Hora registrada automaticamente</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="doseList" id="doseList"></div>
+
+    <div class="sep"></div>
+    <div class="small">
+      Dica: se você quiser registrar “manhã / tarde / noite” sem alarmes, basta marcar na hora que tomou — o app guarda o horário.
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="histHead">
+      <h2>Histórico (últimos 30 dias)</h2>
+      <button class="btn secondary" id="btnClearHistory">Limpar histórico</button>
+    </div>
+    <div id="history"></div>
+    <div class="small">Os dados ficam só no seu celular (localStorage), a não ser que você faça backup.</div>
+  </section>
+</main>
+
+<dialog id="dlgSettings">
+  <div class="modal">
+    <header><h3>Configurações (opcional)</h3></header>
+    <div class="content">
+      <div class="warnbox">
+        Aqui é só para você ajustar o app ao seu jeito (nome do remédio e número de comprimidos por dia).
+        Não é recomendação médica.
+      </div>
+      <div class="sep"></div>
+      <div class="field">
+        <label>Nome do remédio</label>
+        <input id="setName" type="text" placeholder="Ex.: Glifage" />
+      </div>
+      <div class="field">
+        <label>Quantos comprimidos por dia?</label>
+        <input id="setPerDay" type="number" min="1" max="12" />
+      </div>
+      <div class="field">
+        <label>Notas (opcional)</label>
+        <textarea id="setNotes" placeholder="Ex.: objetivo é evitar esquecer se já tomei"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn ghost" id="btnCloseSettings">Fechar</button>
+        <button class="btn" id="btnSaveSettings">Salvar</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dlgRestore">
+  <div class="modal">
+    <header><h3>Restaurar backup</h3></header>
+    <div class="content">
+      <div class="field">
+        <label>Cole aqui o JSON do backup</label>
+        <textarea id="restoreText" placeholder='{"settings":...,"days":...}'></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="btnCancelRestore">Cancelar</button>
+        <button class="btn" id="btnDoRestore">Restaurar</button>
+      </div>
+      <div class="small">Dica: backup/restore é útil se você trocar de celular.</div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* =========================
+   Remédio — Registro diário
+   - Sem alarmes
+   - Marcações por dose
+   - Salva localmente
+   - Backup / Restaurar
+========================= */
+
+const STORAGE_KEY = "remedio_registro_v1";
+
+function pad2(n){ return String(n).padStart(2,"0"); }
+function fmtDateKey(d){
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+}
+function fmtHumanDate(d){
+  const wd = d.toLocaleDateString("pt-BR",{weekday:"short"});
+  const dt = d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short",year:"numeric"});
+  return `${wd.replace(".","")}, ${dt}`;
+}
+function fmtTime(d){
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+function defaultState(){
+  return {
+    settings: {
+      medName: "Glifage",
+      perDay: 3,
+      notes: ""
+    },
+    // days: { "YYYY-MM-DD": { taken: [ {i, at} ... ] } }
+    days: {}
+  };
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const st = JSON.parse(raw);
+    // soft-merge defaults
+    const def = defaultState();
+    return {
+      settings: { ...def.settings, ...(st.settings||{}) },
+      days: st.days || {}
+    };
+  }catch(e){
+    console.warn("Falha ao carregar:", e);
+    return defaultState();
+  }
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+
+const elTodayLabel = document.getElementById("todayLabel");
+const elTodayHint  = document.getElementById("todayHint");
+const elDoseList   = document.getElementById("doseList");
+const elKpiTaken   = document.getElementById("kpiTaken");
+const elKpiLast    = document.getElementById("kpiLast");
+const elHistory    = document.getElementById("history");
+
+const btnBackup = document.getElementById("btnBackup");
+const btnRestore = document.getElementById("btnRestore");
+const btnSettings = document.getElementById("btnSettings");
+const btnResetToday = document.getElementById("btnResetToday");
+const btnClearHistory = document.getElementById("btnClearHistory");
+
+const dlgSettings = document.getElementById("dlgSettings");
+const setName = document.getElementById("setName");
+const setPerDay = document.getElementById("setPerDay");
+const setNotes = document.getElementById("setNotes");
+const btnCloseSettings = document.getElementById("btnCloseSettings");
+const btnSaveSettings = document.getElementById("btnSaveSettings");
+
+const dlgRestore = document.getElementById("dlgRestore");
+const restoreText = document.getElementById("restoreText");
+const btnCancelRestore = document.getElementById("btnCancelRestore");
+const btnDoRestore = document.getElementById("btnDoRestore");
+
+function ensureToday(){
+  const key = fmtDateKey(new Date());
+  if(!state.days[key]) state.days[key] = { taken: [] };
+  return key;
+}
+
+function getTakenSet(dayKey){
+  const taken = state.days[dayKey]?.taken || [];
+  const set = new Set(taken.map(x=>x.i));
+  return { taken, set };
+}
+
+function render(){
+  const now = new Date();
+  const dayKey = ensureToday();
+  const { medName, perDay } = state.settings;
+
+  elTodayLabel.textContent = fmtHumanDate(now);
+  elTodayHint.textContent = `${medName} • ${perDay} comprimido(s)/dia`;
+
+  // doses list
+  elDoseList.innerHTML = "";
+  const { taken, set } = getTakenSet(dayKey);
+
+  let lastTime = "—";
+  if(taken.length){
+    const last = taken.slice().sort((a,b)=> (a.at||"").localeCompare(b.at||"")).at(-1);
+    if(last?.at) lastTime = last.at;
+  }
+  elKpiLast.textContent = lastTime;
+
+  const takenCount = set.size;
+  elKpiTaken.textContent = `${takenCount}/${perDay}`;
+
+  for(let i=1;i<=perDay;i++){
+    const isTaken = set.has(i);
+    const rec = taken.find(x=>x.i===i);
+    const at = rec?.at ? `Marcado às ${rec.at}` : "Não marcado";
+
+    const row = document.createElement("div");
+    row.className = "dose";
+
+    const left = document.createElement("div");
+    left.className = "left";
+    left.innerHTML = `
+      <div class="name">${medName} — dose ${i}</div>
+      <div class="meta">${at}</div>
+    `;
+
+    const right = document.createElement("div");
+    right.className = "right";
+
+    const tag = document.createElement("div");
+    tag.className = "tag " + (isTaken ? "ok" : "");
+    tag.textContent = isTaken ? "✅ Tomado" : "⬜ Pendente";
+
+    const btn = document.createElement("button");
+    btn.className = "btn " + (isTaken ? "secondary" : "");
+    btn.textContent = isTaken ? "Desmarcar" : "Marcar como tomado";
+    btn.addEventListener("click", ()=>{
+      toggleDose(dayKey, i);
+    });
+
+    right.appendChild(tag);
+    right.appendChild(btn);
+
+    row.appendChild(left);
+    row.appendChild(right);
+    elDoseList.appendChild(row);
+  }
+
+  renderHistory();
+}
+
+function toggleDose(dayKey, doseIndex){
+  const now = new Date();
+  const at = fmtTime(now);
+  const day = state.days[dayKey] || { taken: [] };
+  const idx = day.taken.findIndex(x=>x.i===doseIndex);
+
+  if(idx>=0){
+    // desmarca
+    day.taken.splice(idx,1);
+  }else{
+    day.taken.push({ i:doseIndex, at });
+  }
+
+  state.days[dayKey] = day;
+  saveState();
+  render();
+}
+
+function renderHistory(){
+  const keys = Object.keys(state.days).sort().reverse();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const cutoffKey = fmtDateKey(cutoff);
+
+  const recent = keys.filter(k => k >= cutoffKey);
+  if(!recent.length){
+    elHistory.innerHTML = `<div class="small">Sem histórico ainda. Suas marcações aparecerão aqui.</div>`;
+    return;
+  }
+
+  const { perDay } = state.settings;
+
+  elHistory.innerHTML = "";
+  recent.forEach(k=>{
+    const day = state.days[k] || { taken: [] };
+    const set = new Set((day.taken||[]).map(x=>x.i));
+    const count = set.size;
+
+    const d = new Date(k+"T12:00:00");
+    const wrap = document.createElement("div");
+    wrap.className = "day";
+
+    const top = document.createElement("div");
+    top.className = "dtitle";
+    top.innerHTML = `
+      <div class="date">${d.toLocaleDateString("pt-BR")}</div>
+      <div class="sum">${count}/${perDay} marcado(s)</div>
+    `;
+
+    const times = document.createElement("div");
+    times.className = "times";
+
+    if(!day.taken?.length){
+      const ch = document.createElement("div");
+      ch.className = "chip muted";
+      ch.textContent = "sem marcações";
+      times.appendChild(ch);
+    }else{
+      // ordenar por dose
+      const ordered = day.taken.slice().sort((a,b)=>a.i-b.i);
+      ordered.forEach(x=>{
+        const ch = document.createElement("div");
+        ch.className = "chip";
+        ch.textContent = `dose ${x.i} • ${x.at || "—"}`;
+        times.appendChild(ch);
+      });
+    }
+
+    wrap.appendChild(top);
+    wrap.appendChild(times);
+    elHistory.appendChild(wrap);
+  });
+}
+
+/* =========================
+   Backup / Restore
+========================= */
+function downloadText(filename, text){
+  const blob = new Blob([text], {type:"application/json;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 500);
+}
+
+btnBackup.addEventListener("click", ()=>{
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    app: "remedio-registro",
+    version: 1,
+    data: state
+  };
+  const filename = `backup_remedio_${fmtDateKey(new Date())}.json`;
+  downloadText(filename, JSON.stringify(payload, null, 2));
+});
+
+btnRestore.addEventListener("click", ()=>{
+  restoreText.value = "";
+  dlgRestore.showModal();
+});
+
+btnCancelRestore.addEventListener("click", ()=> dlgRestore.close());
+
+btnDoRestore.addEventListener("click", ()=>{
+  try{
+    const obj = JSON.parse(restoreText.value.trim());
+    const data = obj.data || obj; // permite colar direto state
+    if(!data.settings || !data.days) throw new Error("Backup inválido: faltam campos.");
+    state = {
+      settings: { ...defaultState().settings, ...(data.settings||{}) },
+      days: data.days || {}
+    };
+    saveState();
+    dlgRestore.close();
+    render();
+    alert("Backup restaurado com sucesso.");
+  }catch(e){
+    alert("Não consegui restaurar. Verifique o JSON.\n\n" + e.message);
+  }
+});
+
+/* =========================
+   Settings
+========================= */
+btnSettings.addEventListener("click", ()=>{
+  setName.value = state.settings.medName || "";
+  setPerDay.value = state.settings.perDay || 1;
+  setNotes.value = state.settings.notes || "";
+  dlgSettings.showModal();
+});
+btnCloseSettings.addEventListener("click", ()=> dlgSettings.close());
+btnSaveSettings.addEventListener("click", ()=>{
+  const name = (setName.value || "").trim() || "Remédio";
+  let perDay = parseInt(setPerDay.value,10);
+  if(!Number.isFinite(perDay) || perDay<1) perDay = 1;
+  if(perDay>12) perDay = 12;
+
+  state.settings.medName = name;
+  state.settings.perDay = perDay;
+  state.settings.notes = (setNotes.value || "").trim();
+
+  // Se diminuiu perDay, remover tomadas acima do limite em todos os dias
+  Object.keys(state.days).forEach(k=>{
+    const day = state.days[k];
+    if(!day?.taken) return;
+    day.taken = day.taken.filter(x => (x.i||0) <= perDay);
+  });
+
+  saveState();
+  dlgSettings.close();
+  render();
+});
+
+/* =========================
+   Reset Today / Clear history
+========================= */
+btnResetToday.addEventListener("click", ()=>{
+  const ok = confirm("Zerar as marcações de HOJE?");
+  if(!ok) return;
+  const k = fmtDateKey(new Date());
+  state.days[k] = { taken: [] };
+  saveState();
+  render();
+});
+
+btnClearHistory.addEventListener("click", ()=>{
+  const ok = confirm("Isso apaga TODO o histórico (exceto as configurações). Continuar?");
+  if(!ok) return;
+  state.days = {};
+  saveState();
+  render();
+});
+
+// init
+render();
+</script>
+</body>
+</html>
