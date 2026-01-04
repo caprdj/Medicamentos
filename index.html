@@ -3,26 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Remédio — Registro diário</title>
+  <title>Remédios — Registro diário</title>
 
   <!-- PWA -->
   <meta name="theme-color" content="#0b1220" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="manifest.json" />
-
-  <!-- (Opcional) Ícone iOS: use o 192 se não tiver outro -->
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
   <style>
     :root{
       --bg:#0b1220;
-      --card:#101b33;
       --text:#eaf0ff;
       --muted:#9fb2d6;
       --accent:#5dd6ff;
       --ok:#33d17a;
-      --warn:#ffcc66;
       --danger:#ff6b6b;
       --border:rgba(255,255,255,.08);
       --shadow: 0 10px 30px rgba(0,0,0,.35);
@@ -47,14 +43,8 @@
       background: rgba(11,18,32,.72);
       border-bottom: 1px solid var(--border);
     }
-    .wrap{max-width: 760px; margin:0 auto; padding: 14px 14px 26px;}
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 10px 0;
-    }
+    .wrap{max-width: 860px; margin:0 auto; padding: 14px 14px 26px;}
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 10px 0;}
     .title{display:flex; flex-direction:column; gap:2px;}
     .title h1{margin:0; font-size: 16px; letter-spacing:.2px;}
     .title .sub{font-size: 12px; color:var(--muted)}
@@ -82,7 +72,7 @@
     }
     .row{display:flex; gap:12px; flex-wrap:wrap}
     .kpi{
-      flex:1 1 160px;
+      flex:1 1 170px;
       background: rgba(255,255,255,.03);
       border:1px solid var(--border);
       border-radius: 14px;
@@ -91,6 +81,30 @@
     .kpi .label{font-size: 12px; color:var(--muted)}
     .kpi .value{font-size: 18px; margin-top: 4px; font-weight: 700}
     .kpi .hint{font-size: 12px; color:var(--muted); margin-top: 2px}
+
+    .medHead{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      margin-top: 8px;
+    }
+    .medName{font-weight:800}
+    .medMeta{font-size:12px; color:var(--muted); margin-top:2px}
+    .medActions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .btn{
+      border:none;
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight:650;
+      color: var(--text);
+      background: rgba(93,214,255,.14);
+      border:1px solid rgba(93,214,255,.35);
+    }
+    .btn:active{transform: translateY(1px)}
+    .btn.secondary{background: rgba(255,255,255,.04); border-color: var(--border)}
+    .btn.danger{background: rgba(255,107,107,.12); border-color: rgba(255,107,107,.35)}
+    .sep{height:1px; background: var(--border); margin: 12px 0}
+    .small{font-size:12px; color:var(--muted)}
+
     .doseList{display:flex; flex-direction:column; gap:10px; margin-top: 10px}
     .dose{
       display:flex; align-items:center; justify-content:space-between;
@@ -114,33 +128,9 @@
       white-space:nowrap;
     }
     .tag.ok{color: rgba(51,209,122,.95); border-color: rgba(51,209,122,.35); background: rgba(51,209,122,.10)}
-    .btn{
-      border:none;
-      border-radius: 14px;
-      padding: 10px 12px;
-      cursor:pointer;
-      font-weight:650;
-      color: var(--text);
-      background: rgba(93,214,255,.14);
-      border:1px solid rgba(93,214,255,.35);
-    }
-    .btn:active{transform: translateY(1px)}
-    .btn.secondary{
-      background: rgba(255,255,255,.04);
-      border-color: var(--border);
-      color: var(--text);
-    }
-    .btn.ghost{
-      background: transparent;
-      border:1px solid var(--border);
-      color: var(--text);
-    }
-    .small{font-size:12px; color:var(--muted)}
-    .histHead{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      margin-bottom: 10px;
-    }
-    .histHead h2{margin:0; font-size: 14px}
+
+    .histHead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px}
+    .histHead h2{margin:0; font-size:14px}
     .day{
       border:1px solid var(--border);
       border-radius: 14px;
@@ -149,7 +139,7 @@
       margin-bottom: 10px;
     }
     .day .dtitle{display:flex; justify-content:space-between; gap:10px; align-items:center}
-    .day .dtitle .date{font-weight:700}
+    .day .dtitle .date{font-weight:800}
     .day .dtitle .sum{font-size:12px; color:var(--muted)}
     .times{margin-top: 8px; display:flex; gap:8px; flex-wrap:wrap}
     .chip{
@@ -161,28 +151,19 @@
       color: var(--text);
     }
     .chip.muted{color: var(--muted)}
-    .sep{height:1px; background: var(--border); margin: 12px 0}
+
     dialog{
       border:none;
       border-radius: 18px;
       padding: 0;
-      width: min(640px, calc(100vw - 24px));
+      width: min(680px, calc(100vw - 24px));
       box-shadow: var(--shadow);
       background: #0b1220;
       color: var(--text);
     }
     dialog::backdrop{background: rgba(0,0,0,.55)}
-    .modal{
-      border:1px solid var(--border);
-      border-radius: 18px;
-      overflow:hidden;
-    }
-    .modal header{
-      position: relative;
-      background: rgba(255,255,255,.03);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 14px;
-    }
+    .modal{border:1px solid var(--border); border-radius: 18px; overflow:hidden;}
+    .modal header{background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border); padding: 12px 14px;}
     .modal header h3{margin:0; font-size: 14px}
     .modal .content{padding: 14px}
     .field{display:flex; flex-direction:column; gap:6px; margin-bottom: 10px}
@@ -198,8 +179,8 @@
     textarea{min-height: 72px; resize: vertical}
     .actions{display:flex; gap:10px; justify-content:flex-end; padding-top: 6px}
     .warnbox{
-      border:1px solid rgba(255,204,102,.35);
-      background: rgba(255,204,102,.10);
+      border:1px solid rgba(93,214,255,.35);
+      background: rgba(93,214,255,.10);
       padding: 10px 12px;
       border-radius: 14px;
       font-size: 12px;
@@ -212,13 +193,14 @@
   <div class="wrap">
     <div class="topbar">
       <div class="title">
-        <h1>Remédio — Registro diário</h1>
-        <div class="sub" id="subline">Sem alarmes. Só marcar e pronto.</div>
+        <h1>Remédios — Registro diário</h1>
+        <div class="sub">Sem alarmes. Só marcar e checar.</div>
       </div>
       <div class="pillrow">
+        <button class="pill primary" id="btnRefresh">🔄 Atualizar</button>
+        <button class="pill primary" id="btnAddMed">➕ Remédio</button>
         <button class="pill primary" id="btnBackup">📤 Backup</button>
         <button class="pill primary" id="btnRestore">📥 Restaurar</button>
-        <button class="pill" id="btnSettings">⚙️ Config</button>
         <button class="pill danger" id="btnResetToday">↩️ Zerar hoje</button>
       </div>
     </div>
@@ -226,7 +208,7 @@
 </header>
 
 <main class="wrap">
-  <section class="card" id="cardToday">
+  <section class="card">
     <div class="row">
       <div class="kpi">
         <div class="label">Hoje</div>
@@ -234,9 +216,9 @@
         <div class="hint" id="todayHint">—</div>
       </div>
       <div class="kpi">
-        <div class="label">Tomados</div>
+        <div class="label">Progresso do dia</div>
         <div class="value" id="kpiTaken">0/0</div>
-        <div class="hint">Marque conforme tomar</div>
+        <div class="hint">Total de doses marcadas</div>
       </div>
       <div class="kpi">
         <div class="label">Última marcação</div>
@@ -244,15 +226,11 @@
         <div class="hint">Hora registrada automaticamente</div>
       </div>
     </div>
-
     <div class="sep"></div>
-    <div class="doseList" id="doseList"></div>
-
-    <div class="sep"></div>
-    <div class="small">
-      Dica: marque na hora que tomou — o app guarda o horário e você confere “tomei ou não”.
-    </div>
+    <div class="small">Dica: marcou na hora que tomou → você nunca mais fica na dúvida “tomei ou não”.</div>
   </section>
+
+  <section id="todayMeds"></section>
 
   <section class="card">
     <div class="histHead">
@@ -260,39 +238,40 @@
       <button class="btn secondary" id="btnClearHistory">Limpar histórico</button>
     </div>
     <div id="history"></div>
-    <div class="small">Os dados ficam só no seu aparelho. Use Backup/Restaurar se trocar de celular.</div>
+    <div class="small">Os dados ficam no seu aparelho. Backup/Restaurar serve para trocar de celular sem perder tudo.</div>
   </section>
 </main>
 
-<dialog id="dlgSettings">
+<!-- Modal: Add/Edit Med -->
+<dialog id="dlgMed">
   <div class="modal">
-    <header><h3>Configurações (opcional)</h3></header>
+    <header><h3 id="dlgMedTitle">Novo remédio</h3></header>
     <div class="content">
-      <div class="warnbox">
-        Aqui é apenas para ajustar nome/quantidade no app (não é orientação médica).
-      </div>
+      <div class="warnbox">Aqui é só registro/organização. Não é orientação médica.</div>
       <div class="sep"></div>
+
       <div class="field">
         <label>Nome do remédio</label>
-        <input id="setName" type="text" placeholder="Ex.: Glifage" />
+        <input id="medName" type="text" placeholder="Ex.: Glifage" />
       </div>
       <div class="field">
-        <label>Quantos comprimidos por dia?</label>
-        <input id="setPerDay" type="number" min="1" max="12" />
+        <label>Quantas doses por dia?</label>
+        <input id="medPerDay" type="number" min="1" max="12" value="1" />
       </div>
       <div class="field">
-        <label>Notas (opcional)</label>
-        <textarea id="setNotes" placeholder="Ex.: mudar horário para evitar calor noturno"></textarea>
+        <label>Observação (opcional)</label>
+        <textarea id="medNotes" placeholder="Ex.: tomar com comida / evitar à noite etc."></textarea>
       </div>
 
       <div class="actions">
-        <button class="btn ghost" id="btnCloseSettings">Fechar</button>
-        <button class="btn" id="btnSaveSettings">Salvar</button>
+        <button class="btn secondary" id="btnCancelMed">Cancelar</button>
+        <button class="btn" id="btnSaveMed">Salvar</button>
       </div>
     </div>
   </div>
 </dialog>
 
+<!-- Modal: Restore -->
 <dialog id="dlgRestore">
   <div class="modal">
     <header><h3>Restaurar backup</h3></header>
@@ -302,10 +281,10 @@
         <textarea id="restoreText" placeholder='{"exportedAt":"...","data":{...}}'></textarea>
       </div>
       <div class="actions">
-        <button class="btn ghost" id="btnCancelRestore">Cancelar</button>
+        <button class="btn secondary" id="btnCancelRestore">Cancelar</button>
         <button class="btn" id="btnDoRestore">Restaurar</button>
       </div>
-      <div class="small">Backup/restore ajuda a não perder histórico ao trocar de aparelho.</div>
+      <div class="small">Se colar um backup válido, ele substitui os dados atuais.</div>
     </div>
   </div>
 </dialog>
@@ -326,10 +305,11 @@
 })();
 
 /* =========================
-   Remédio — Registro diário
+   Estado
 ========================= */
-const STORAGE_KEY = "remedio_registro_v1";
+const STORAGE_KEY = "remedios_registro_v2";
 
+function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
 function pad2(n){ return String(n).padStart(2,"0"); }
 function fmtDateKey(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
 function fmtHumanDate(d){
@@ -340,16 +320,23 @@ function fmtHumanDate(d){
 function fmtTime(d){ return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; }
 
 function defaultState(){
-  return { settings: { medName: "Glifage", perDay: 3, notes: "" }, days: {} };
+  return {
+    meds: [
+      // exemplo inicial (pode apagar depois)
+      { id: uid(), name: "Glifage (exemplo)", perDay: 3, notes: "" }
+    ],
+    // days[YYYY-MM-DD].taken = [{medId, doseIndex, at}]
+    days: {}
+  };
 }
 function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return defaultState();
     const st = JSON.parse(raw);
-    const def = defaultState();
+    // migração leve se faltar algo
     return {
-      settings: { ...def.settings, ...(st.settings||{}) },
+      meds: Array.isArray(st.meds) && st.meds.length ? st.meds : defaultState().meds,
       days: st.days || {}
     };
   }catch(e){
@@ -360,120 +347,271 @@ function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
 
 let state = loadState();
 
+function ensureToday(){
+  const key = fmtDateKey(new Date());
+  if(!state.days[key]) state.days[key] = { taken: [] };
+  return key;
+}
+function takenForDay(dayKey){
+  return state.days[dayKey]?.taken || [];
+}
+function isDoseTaken(dayKey, medId, doseIndex){
+  return takenForDay(dayKey).some(x => x.medId===medId && x.doseIndex===doseIndex);
+}
+function getDoseRecord(dayKey, medId, doseIndex){
+  return takenForDay(dayKey).find(x => x.medId===medId && x.doseIndex===doseIndex) || null;
+}
+
+/* =========================
+   Elementos
+========================= */
 const elTodayLabel = document.getElementById("todayLabel");
 const elTodayHint  = document.getElementById("todayHint");
-const elDoseList   = document.getElementById("doseList");
 const elKpiTaken   = document.getElementById("kpiTaken");
 const elKpiLast    = document.getElementById("kpiLast");
+const elTodayMeds  = document.getElementById("todayMeds");
 const elHistory    = document.getElementById("history");
 
+const btnRefresh = document.getElementById("btnRefresh");
+const btnAddMed = document.getElementById("btnAddMed");
 const btnBackup = document.getElementById("btnBackup");
 const btnRestore = document.getElementById("btnRestore");
-const btnSettings = document.getElementById("btnSettings");
 const btnResetToday = document.getElementById("btnResetToday");
 const btnClearHistory = document.getElementById("btnClearHistory");
 
-const dlgSettings = document.getElementById("dlgSettings");
-const setName = document.getElementById("setName");
-const setPerDay = document.getElementById("setPerDay");
-const setNotes = document.getElementById("setNotes");
-const btnCloseSettings = document.getElementById("btnCloseSettings");
-const btnSaveSettings = document.getElementById("btnSaveSettings");
+const dlgMed = document.getElementById("dlgMed");
+const dlgMedTitle = document.getElementById("dlgMedTitle");
+const medName = document.getElementById("medName");
+const medPerDay = document.getElementById("medPerDay");
+const medNotes = document.getElementById("medNotes");
+const btnCancelMed = document.getElementById("btnCancelMed");
+const btnSaveMed = document.getElementById("btnSaveMed");
 
 const dlgRestore = document.getElementById("dlgRestore");
 const restoreText = document.getElementById("restoreText");
 const btnCancelRestore = document.getElementById("btnCancelRestore");
 const btnDoRestore = document.getElementById("btnDoRestore");
 
-function ensureToday(){
-  const key = fmtDateKey(new Date());
-  if(!state.days[key]) state.days[key] = { taken: [] };
-  return key;
-}
-function getTakenSet(dayKey){
-  const taken = state.days[dayKey]?.taken || [];
-  return { taken, set: new Set(taken.map(x=>x.i)) };
-}
+let editingMedId = null;
 
+/* =========================
+   Render
+========================= */
 function render(){
   const now = new Date();
   const dayKey = ensureToday();
-  const { medName, perDay } = state.settings;
 
   elTodayLabel.textContent = fmtHumanDate(now);
-  elTodayHint.textContent = `${medName} • ${perDay} comprimido(s)/dia`;
+  elTodayHint.textContent = `${state.meds.length} remédio(s) • registro do dia`;
 
-  elDoseList.innerHTML = "";
-  const { taken, set } = getTakenSet(dayKey);
+  // KPIs
+  const totalPlanned = state.meds.reduce((acc,m)=>acc + (m.perDay||0), 0);
+  const taken = takenForDay(dayKey);
+  const totalTaken = taken.length;
+  elKpiTaken.textContent = `${totalTaken}/${totalPlanned}`;
 
-  let lastTime = "—";
+  let last = "—";
   if(taken.length){
-    const last = taken.slice().sort((a,b)=> (a.at||"").localeCompare(b.at||"")).at(-1);
-    if(last?.at) lastTime = last.at;
+    const lastRec = taken.slice().sort((a,b)=>(a.at||"").localeCompare(b.at||"")).at(-1);
+    if(lastRec?.at) last = lastRec.at;
   }
-  elKpiLast.textContent = lastTime;
+  elKpiLast.textContent = last;
 
-  const takenCount = set.size;
-  elKpiTaken.textContent = `${takenCount}/${perDay}`;
-
-  for(let i=1;i<=perDay;i++){
-    const isTaken = set.has(i);
-    const rec = taken.find(x=>x.i===i);
-    const at = rec?.at ? `Marcado às ${rec.at}` : "Não marcado";
-
-    const row = document.createElement("div");
-    row.className = "dose";
-
-    const left = document.createElement("div");
-    left.className = "left";
-    left.innerHTML = `
-      <div class="name">${medName} — dose ${i}</div>
-      <div class="meta">${at}</div>
-    `;
-
-    const right = document.createElement("div");
-    right.className = "right";
-
-    const tag = document.createElement("div");
-    tag.className = "tag " + (isTaken ? "ok" : "");
-    tag.textContent = isTaken ? "✅ Tomado" : "⬜ Pendente";
-
-    const btn = document.createElement("button");
-    btn.className = "btn " + (isTaken ? "secondary" : "");
-    btn.textContent = isTaken ? "Desmarcar" : "Marcar como tomado";
-    btn.addEventListener("click", ()=> toggleDose(dayKey, i));
-
-    right.appendChild(tag);
-    right.appendChild(btn);
-
-    row.appendChild(left);
-    row.appendChild(right);
-    elDoseList.appendChild(row);
+  // Hoje: cards por remédio
+  elTodayMeds.innerHTML = "";
+  if(!state.meds.length){
+    elTodayMeds.innerHTML = `<section class="card"><div class="small">Nenhum remédio cadastrado. Toque em <b>➕ Remédio</b>.</div></section>`;
+  }else{
+    state.meds.forEach(med=>{
+      elTodayMeds.appendChild(renderMedCard(dayKey, med));
+    });
   }
 
   renderHistory();
 }
 
-function toggleDose(dayKey, doseIndex){
-  const at = fmtTime(new Date());
+function renderMedCard(dayKey, med){
+  const card = document.createElement("section");
+  card.className = "card";
+
+  const head = document.createElement("div");
+  head.className = "medHead";
+
+  const left = document.createElement("div");
+  left.innerHTML = `
+    <div class="medName">${escapeHtml(med.name)}</div>
+    <div class="medMeta">${(med.perDay||0)} dose(s)/dia${med.notes ? " • " + escapeHtml(med.notes) : ""}</div>
+  `;
+
+  const actions = document.createElement("div");
+  actions.className = "medActions";
+
+  const btnEdit = document.createElement("button");
+  btnEdit.className = "btn secondary";
+  btnEdit.textContent = "Editar";
+  btnEdit.addEventListener("click", ()=> openEditMed(med.id));
+
+  const btnDel = document.createElement("button");
+  btnDel.className = "btn danger";
+  btnDel.textContent = "Excluir";
+  btnDel.addEventListener("click", ()=> deleteMed(med.id));
+
+  actions.appendChild(btnEdit);
+  actions.appendChild(btnDel);
+
+  head.appendChild(left);
+  head.appendChild(actions);
+
+  card.appendChild(head);
+  card.appendChild(divSep());
+
+  const list = document.createElement("div");
+  list.className = "doseList";
+
+  const per = clampInt(med.perDay, 1, 12);
+  for(let i=1;i<=per;i++){
+    list.appendChild(renderDoseRow(dayKey, med, i));
+  }
+  card.appendChild(list);
+
+  return card;
+}
+
+function renderDoseRow(dayKey, med, doseIndex){
+  const isTaken = isDoseTaken(dayKey, med.id, doseIndex);
+  const rec = getDoseRecord(dayKey, med.id, doseIndex);
+  const at = rec?.at ? `Marcado às ${rec.at}` : "Não marcado";
+
+  const row = document.createElement("div");
+  row.className = "dose";
+
+  const left = document.createElement("div");
+  left.className = "left";
+  left.innerHTML = `
+    <div class="name">${escapeHtml(med.name)} — dose ${doseIndex}</div>
+    <div class="meta">${at}</div>
+  `;
+
+  const right = document.createElement("div");
+  right.className = "right";
+
+  const tag = document.createElement("div");
+  tag.className = "tag " + (isTaken ? "ok" : "");
+  tag.textContent = isTaken ? "✅ Tomado" : "⬜ Pendente";
+
+  const btn = document.createElement("button");
+  btn.className = "btn " + (isTaken ? "secondary" : "");
+  btn.textContent = isTaken ? "Desmarcar" : "Marcar como tomado";
+  btn.addEventListener("click", ()=> toggleDose(dayKey, med.id, doseIndex));
+
+  right.appendChild(tag);
+  right.appendChild(btn);
+
+  row.appendChild(left);
+  row.appendChild(right);
+  return row;
+}
+
+function divSep(){
+  const s = document.createElement("div");
+  s.className = "sep";
+  return s;
+}
+
+/* =========================
+   Ações: marcar / desmarcar
+========================= */
+function toggleDose(dayKey, medId, doseIndex){
   const day = state.days[dayKey] || { taken: [] };
-  const idx = day.taken.findIndex(x=>x.i===doseIndex);
+  const idx = day.taken.findIndex(x => x.medId===medId && x.doseIndex===doseIndex);
 
-  if(idx>=0) day.taken.splice(idx,1);
-  else day.taken.push({ i:doseIndex, at });
-
+  if(idx>=0){
+    day.taken.splice(idx,1);
+  }else{
+    day.taken.push({ medId, doseIndex, at: fmtTime(new Date()) });
+  }
   state.days[dayKey] = day;
   saveState();
   render();
 }
 
+/* =========================
+   CRUD de remédios
+========================= */
+function openNewMed(){
+  editingMedId = null;
+  dlgMedTitle.textContent = "Novo remédio";
+  medName.value = "";
+  medPerDay.value = 1;
+  medNotes.value = "";
+  dlgMed.showModal();
+}
+function openEditMed(id){
+  const med = state.meds.find(m=>m.id===id);
+  if(!med) return;
+  editingMedId = id;
+  dlgMedTitle.textContent = "Editar remédio";
+  medName.value = med.name || "";
+  medPerDay.value = clampInt(med.perDay, 1, 12);
+  medNotes.value = med.notes || "";
+  dlgMed.showModal();
+}
+function saveMed(){
+  const name = (medName.value || "").trim();
+  const perDay = clampInt(parseInt(medPerDay.value,10), 1, 12);
+  const notes = (medNotes.value || "").trim();
+
+  if(!name){
+    alert("Digite o nome do remédio.");
+    return;
+  }
+
+  if(editingMedId){
+    const med = state.meds.find(m=>m.id===editingMedId);
+    if(!med) return;
+    med.name = name;
+    med.perDay = perDay;
+    med.notes = notes;
+
+    // se reduziu perDay, remover doses acima do limite no dia/histórico
+    Object.keys(state.days).forEach(k=>{
+      const day = state.days[k];
+      if(!day?.taken) return;
+      day.taken = day.taken.filter(x => !(x.medId===editingMedId && x.doseIndex>perDay));
+    });
+
+  }else{
+    state.meds.push({ id: uid(), name, perDay, notes });
+  }
+
+  saveState();
+  dlgMed.close();
+  render();
+}
+function deleteMed(id){
+  const med = state.meds.find(m=>m.id===id);
+  if(!med) return;
+  if(!confirm(`Excluir "${med.name}"? Isso remove também as marcações desse remédio no histórico.`)) return;
+
+  state.meds = state.meds.filter(m=>m.id!==id);
+  Object.keys(state.days).forEach(k=>{
+    const day = state.days[k];
+    if(!day?.taken) return;
+    day.taken = day.taken.filter(x=>x.medId!==id);
+  });
+
+  saveState();
+  render();
+}
+
+/* =========================
+   Histórico (últimos 30 dias)
+========================= */
 function renderHistory(){
   const keys = Object.keys(state.days).sort().reverse();
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
   const cutoffKey = fmtDateKey(cutoff);
-
   const recent = keys.filter(k => k >= cutoffKey);
-  const { perDay } = state.settings;
 
   if(!recent.length){
     elHistory.innerHTML = `<div class="small">Sem histórico ainda. Suas marcações aparecerão aqui.</div>`;
@@ -483,8 +621,8 @@ function renderHistory(){
   elHistory.innerHTML = "";
   recent.forEach(k=>{
     const day = state.days[k] || { taken: [] };
-    const set = new Set((day.taken||[]).map(x=>x.i));
-    const count = set.size;
+    const planned = state.meds.reduce((acc,m)=>acc + (m.perDay||0), 0);
+    const done = (day.taken||[]).length;
 
     const d = new Date(k+"T12:00:00");
     const wrap = document.createElement("div");
@@ -494,7 +632,7 @@ function renderHistory(){
     top.className = "dtitle";
     top.innerHTML = `
       <div class="date">${d.toLocaleDateString("pt-BR")}</div>
-      <div class="sum">${count}/${perDay} marcado(s)</div>
+      <div class="sum">${done}/${planned} dose(s) marcada(s)</div>
     `;
 
     const times = document.createElement("div");
@@ -506,11 +644,13 @@ function renderHistory(){
       ch.textContent = "sem marcações";
       times.appendChild(ch);
     }else{
-      const ordered = day.taken.slice().sort((a,b)=>a.i-b.i);
+      const ordered = day.taken.slice().sort((a,b)=> (a.at||"").localeCompare(b.at||""));
       ordered.forEach(x=>{
+        const med = state.meds.find(m=>m.id===x.medId);
+        const medLabel = med ? med.name : "Remédio removido";
         const ch = document.createElement("div");
         ch.className = "chip";
-        ch.textContent = `dose ${x.i} • ${x.at || "—"}`;
+        ch.textContent = `${medLabel} • dose ${x.doseIndex} • ${x.at || "—"}`;
         times.appendChild(ch);
       });
     }
@@ -521,7 +661,9 @@ function renderHistory(){
   });
 }
 
-/* Backup / Restore */
+/* =========================
+   Backup / Restore
+========================= */
 function downloadText(filename, text){
   const blob = new Blob([text], {type:"application/json;charset=utf-8"});
   const url = URL.createObjectURL(blob);
@@ -535,13 +677,8 @@ function downloadText(filename, text){
 }
 
 btnBackup.addEventListener("click", ()=>{
-  const payload = {
-    exportedAt: new Date().toISOString(),
-    app: "remedio-registro",
-    version: 1,
-    data: state
-  };
-  downloadText(`backup_remedio_${fmtDateKey(new Date())}.json`, JSON.stringify(payload, null, 2));
+  const payload = { exportedAt: new Date().toISOString(), app:"remedios-registro", version:2, data: state };
+  downloadText(`backup_remedios_${fmtDateKey(new Date())}.json`, JSON.stringify(payload, null, 2));
 });
 
 btnRestore.addEventListener("click", ()=>{
@@ -553,11 +690,8 @@ btnDoRestore.addEventListener("click", ()=>{
   try{
     const obj = JSON.parse(restoreText.value.trim());
     const data = obj.data || obj;
-    if(!data.settings || !data.days) throw new Error("Backup inválido (faltam campos).");
-    state = {
-      settings: { ...defaultState().settings, ...(data.settings||{}) },
-      days: data.days || {}
-    };
+    if(!data.meds || !data.days) throw new Error("Backup inválido (faltam campos).");
+    state = { meds: data.meds, days: data.days };
     saveState();
     dlgRestore.close();
     render();
@@ -567,49 +701,50 @@ btnDoRestore.addEventListener("click", ()=>{
   }
 });
 
-/* Settings */
-btnSettings.addEventListener("click", ()=>{
-  setName.value = state.settings.medName || "";
-  setPerDay.value = state.settings.perDay || 1;
-  setNotes.value = state.settings.notes || "";
-  dlgSettings.showModal();
-});
-btnCloseSettings.addEventListener("click", ()=> dlgSettings.close());
-btnSaveSettings.addEventListener("click", ()=>{
-  const name = (setName.value || "").trim() || "Remédio";
-  let perDay = parseInt(setPerDay.value,10);
-  if(!Number.isFinite(perDay) || perDay<1) perDay = 1;
-  if(perDay>12) perDay = 12;
-
-  state.settings.medName = name;
-  state.settings.perDay = perDay;
-  state.settings.notes = (setNotes.value || "").trim();
-
-  Object.keys(state.days).forEach(k=>{
-    const day = state.days[k];
-    if(!day?.taken) return;
-    day.taken = day.taken.filter(x => (x.i||0) <= perDay);
-  });
-
-  saveState();
-  dlgSettings.close();
+/* =========================
+   Botões gerais
+========================= */
+btnRefresh.addEventListener("click", ()=>{
+  // botão “Atualizar”: recarrega do storage e redesenha
+  state = loadState();
   render();
 });
 
-/* Reset / Clear history */
+btnAddMed.addEventListener("click", openNewMed);
+btnCancelMed.addEventListener("click", ()=> dlgMed.close());
+btnSaveMed.addEventListener("click", saveMed);
+
 btnResetToday.addEventListener("click", ()=>{
-  if(!confirm("Zerar as marcações de HOJE?")) return;
+  if(!confirm("Zerar as marcações de HOJE (para todos os remédios)?")) return;
   state.days[fmtDateKey(new Date())] = { taken: [] };
   saveState();
   render();
 });
+
 btnClearHistory.addEventListener("click", ()=>{
-  if(!confirm("Apagar TODO o histórico? (configurações ficam)")) return;
+  if(!confirm("Apagar TODO o histórico? (os remédios cadastrados ficam)")) return;
   state.days = {};
   saveState();
   render();
 });
 
+/* =========================
+   Utils
+========================= */
+function clampInt(n, min, max){
+  n = Number.isFinite(n) ? n : min;
+  return Math.max(min, Math.min(max, n));
+}
+function escapeHtml(str){
+  return String(str||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/* init */
 render();
 </script>
 </body>
